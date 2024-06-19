@@ -1,3 +1,5 @@
+
+/** @type {import('tailwindcss').Config} */
 const routes = ['./src/**/*.{css,html}'];
 
 module.exports = {
