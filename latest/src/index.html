@@ -7,20 +7,27 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="./output.css" rel="stylesheet">
 </head>
+
+<header>
+  
+  <nav class="w-full p-4 flex flex-row flex-wrap items-baseline justify-end gap-2 bg-primary mb-32">
+    <input type="text" id="search-input" class="search-input bg-gray-200 rounded px-4 py-2" placeholder="Search authors...">
+    <button class="home-button bg-blue-500 text-white px-4 py-2 rounded">Home</button>
+    <button id="articles-button" class="bg-blue-500 text-white px-4 py-2 rounded ">Articles</button>
+    <button class="load-more bg-blue-500 text-white px-4 py-2 rounded hidden">Load More</button>
+  </nav>
+</header>
+
 <body>
-  <h1 class="text-2xl text-center text-red-50 bg-primary">Videsk blog</h1>
-  <div class="container border border-solid mx-auto flex flex-row">
+
+  
+  <div class="container border-b  border-solid mx-auto flex flex-col justify-center pb-10">
     <!--use the components-->
-    <author-component loading="true">
-      <div class="container flex flex-row justify-end items-baseline gap-2">
-        <button class="home-button bg-blue-500 text-white px-4 py-2 rounded">Home</button>
-        <button class="load-more bg-blue-500 text-white px-4 py-2 rounded">Load More</button>
-      </div>
-    </author-component>
-    <!--use the components-->
+    <article-component></article-component>
+    <author-component loading="true"></author-component>
     <articles-list loading="true"></articles-list>
   </div>
-
+  
   <!--import script of components-->
   <script type="module" src="./components/Author.js"></script>
   <script type="module" src="./components/Article.js"></script>

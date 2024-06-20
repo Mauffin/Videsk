@@ -74,9 +74,7 @@ class ArticlesListComponent extends HTMLElement {
           display: none;
         }
       </style>
-      <div class="articles-list p-4 flex flex-col flex-wrap  ">
-        <h2 class="author-title text-3xl text-center font-bold mb-4">${this.authorName}</h2>
-        
+      <div class="articles-list p-4 flex flex-row justify-center items-center gap-5  ">
         ${articleComponents}
       </div>
     `;
@@ -86,7 +84,16 @@ class ArticlesListComponent extends HTMLElement {
   clearArticles() {
     this.authorName = "";
     this.articles = [];
+    loadMoreAuthors()
     this.renderUI();
+  }
+
+    showSelectedArticle(selectedArticleId) {
+    const articleComponents = this.shadowRoot.querySelectorAll('article-component');
+    articleComponents.forEach((articleComponent) => {
+      const article = JSON.parse(articleComponent.getAttribute('article'));
+      articleComponent.style.display = article.id === selectedArticleId ? 'block' : 'none';
+    });
   }
 }
 
