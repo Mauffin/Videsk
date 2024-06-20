@@ -1,34 +1,43 @@
 class ArticleComponent extends HTMLElement {
   constructor() {
     super();
+    // Create a shadow DOM with open mode content visible outside
     this.attachShadow({ mode: 'open' });
+    //Initialize properties
     this.article = null;
     this.isExpanded = false;
   }
 
+  //Defines attributes to be observed for changes
   static get observedAttributes() {
+    //Observe article attribute changes
     return ['article'];
   }
 
-  //this is similar a los getters y setters :3
+   //handles attribute changes (similar to getters/setters)
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'article') {
-      this.article = JSON.parse(newValue);
+      //If the changed attribute is article
+      this.article = JSON.parse(newValue);//parse
+      //re-render the UI with the updated article
       this.renderUI();
     }
   }
   
-
+  //Called when the component is inserted into the DOM
   connectedCallback() {
     this.renderUI();
   }
 
+  //Renders the UI using the article data
   renderUI() {
+    // Don't render if no article data
     if (!this.article) return;
 
+    //I decided to shorten the bio as it was exaggeratedly long and not very polished
     const truncatedDesc = this.article.description.length > 100 ? `${this.article.description.substring(0, 100)}...` : this.article.description;
 
-    /*use extension es6-string-html is more...beatiful*/
+    /*use extension es6-string-html is more...georgeos*/
     this.shadowRoot.innerHTML = /* html */`
       <style>
         @import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
@@ -44,11 +53,15 @@ class ArticleComponent extends HTMLElement {
       </div>
     `;
 
+    // Get references to DOM elements for interaction
     const articleCard = this.shadowRoot.querySelector('.article-card');
     const articleContent = this.shadowRoot.querySelector('.article-content');
 
+     // Add click event listener to toggle content expansion
     articleCard.addEventListener('click', () => {
+      // Toggle expansion state
       this.isExpanded = !this.isExpanded;
+      // Show/hide content based on state
       articleContent.classList.toggle('hidden', !this.isExpanded);
     });
   }
