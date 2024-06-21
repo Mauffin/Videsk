@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Videsk Blog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="./output.css" rel="stylesheet">
+</head>
+
+<header>
+  <nav class="w-full p-4 flex flex-row flex-wrap items-baseline justify-between gap-2 bg-primary mb-32">
+    <h1 class="text-center text-white font-mono font-bold text-3xl"> Videsk Blog</h1>
+    <div class="">
+      <input type="text" id="search-input" class="search-input bg-gray-200 rounded px-4 py-2" placeholder="Search authors...">
+      <button class="home-button bg-blue-500 text-white px-4 py-2 rounded">Home</button>
+      <button class="load-more bg-blue-500 text-white px-4 py-2 rounded hidden">More Authors</button>
+    </nav>
+    </div>
+</header>
+
+<body>
+  <div class="container border-b  border-solid mx-auto flex flex-col justify-center pb-10">
+    <!--use the components-->
+    <article-component></article-component>
+    <author-component loading="true"></author-component>
+    <articles-list loading="true"></articles-list>
+  </div>
+  
+  <!--import script of components-->
+  <script type="module" src="./components/Author.js"></script>
+  <script type="module" src="./components/Article.js"></script>
+  <script type="module" src="./components/ArticleList.js"></script>
+</body>
+</html>
