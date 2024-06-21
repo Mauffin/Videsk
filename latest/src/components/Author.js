@@ -6,6 +6,7 @@ class AuthorComponent extends HTMLElement {
     this.authors = [];
     this.maxAuthors = 6;
     this.filteredAuthors = []; 
+   
   }
 
   // This function defines which attributes of the component should be observed for changes.
@@ -41,6 +42,7 @@ class AuthorComponent extends HTMLElement {
 
     const loadMoreButton = document.querySelector(".load-more");
     loadMoreButton.addEventListener("click", () => this.loadMoreAuthors());
+    
   }
   
 
@@ -54,15 +56,12 @@ class AuthorComponent extends HTMLElement {
       .map((author) => {
         return /*html*/`
         <div class="author-card relative bg-white shadow-md rounded-lg p-4 max-w-sm flex items-center gap-4 transition-transform transform hover:scale-105" data-author-id="${author.id}">
-    <img class="author-avatar w-10 h-10 rounded-full cursor-pointer" src="${author.avatar}" alt="${author.name} Avatar" data-author-id="${author.id}" />
+    <img class="author-avatar w-12 h-12 rounded-full cursor-pointer" src="${author.avatar}" alt="${author.name} Avatar" data-author-id="${author.id}" />
 
     <div class="font-medium dark:text-white">
         <div class="author-name text-blue-500 underline cursor-pointer" data-author-id="${author.id}">${author.name}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400">
-            Articles: ${author.articleCount}
-        </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            Birthdate: ${author.birthdate}
+            Birthdate: ${this.formatDate(author.birthdate)}
         </div>
         <div class="text-sm text-gray-500 dark:text-gray-400">
             Bio: ${author.bio.length > 50 ? author.bio.substring(0, 50) + "..." : author.bio}
@@ -82,25 +81,13 @@ class AuthorComponent extends HTMLElement {
         .hidden {
           display: none;
         }
-        .author-card {
-          transition: transform 0.3s ease;
-        }
-        .author-card:hover {
-          transform: scale(1.05);
-        }
+        .author-card { transition: transform 0.3s ease; }
+        .author-card:hover { transform: scale(1.05); }
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .fade-in {
-          animation: fadeIn 0.5s ease forwards;
-        }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
       </style>
 
     <div class="flex flex-wrap justify-center align-middle items-center gap-4 author-list">
@@ -148,7 +135,7 @@ class AuthorComponent extends HTMLElement {
 
   //Its simple Load more Authores
   loadMoreAuthors() {
-    this.maxAuthors += 5;
+    this.maxAuthors += 6;
     this.renderUI();
   }
 
@@ -161,12 +148,6 @@ class AuthorComponent extends HTMLElement {
       card.classList.toggle("hidden", authorId !== selectedAuthorId);
     });
     
-    const loadMoreButton = this.shadowRoot.querySelector(".load-more");
-    if (loadMoreButton) {
-      loadMoreButton.classList.add("hidden");
-    } else {
-      console.warn("loadMoreButton not found.");
-    }
   }
   
   //Initially, it shows 6 authors by default since 5 is not symmetrical
@@ -196,13 +177,10 @@ class AuthorComponent extends HTMLElement {
       .map((author) => {
         return `
         <div class="author-card relative bg-white shadow-md rounded-lg p-4 max-w-sm flex items-center gap-4 transition-transform transform hover:scale-105" data-author-id="${author.id}">
-    <img class="author-avatar w-10 h-10 rounded-full cursor-pointer" src="${author.avatar}" alt="${author.name} Avatar" data-author-id="${author.id}" />
+    <img class="author-avatar w-12 h-12 rounded-full cursor-pointer" src="${author.avatar}" alt="${author.name} Avatar" data-author-id="${author.id}" />
 
     <div class="font-medium dark:text-white">
         <div class="author-name text-blue-500 underline cursor-pointer" data-author-id="${author.id}">${author.name}</div>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            Articles: ${author.articleCount}
-        </div>
         <div class="text-sm text-gray-500 dark:text-gray-400">
             Birthdate: ${author.birthdate}
         </div>
@@ -240,57 +218,74 @@ class AuthorComponent extends HTMLElement {
   }
   //It's time to bring in the data clap clap
   async fetchData() {
+     // Define a key for storing and retrieving data from local storage
+    const cacheKey = 'authorData';
+     // Try to retrieve cached data from localStorage
+    const cachedData = localStorage.getItem(cacheKey);
+
+    // If cached data is available, use it instead of making an API request
+    if (cachedData) {
+      // Parse cached data from JSON and assign it to this.authors
+      this.authors = JSON.parse(cachedData);
+      // Set loading state to false since data is ready
+      this.loading = false;
+      // Render the UI with cached data
+      this.renderUI();
+      //Exit the function since there's no need to make an API request
+      return;
+    }
+
     try {
-      // Fetch user data from a mock API endpoint
-      const response = await fetch(
-        `https://5fb46367e473ab0016a1654d.mockapi.io/users`
-      );
-      // Parse the response as JSON
+      // Fetch API to get the list of authors
+      const response = await fetch(`https://5fb46367e473ab0016a1654d.mockapi.io/users`);
+      //Parse
       const data = await response.json();
-      // Create an array to store promises for fetching articles
-      const authorPromises = data.map(async (author) => {
-        try {
-          // For each author, fetch their latest article from another API endpoint
-          const articlesResponse = await fetch(
-            `https://5fb46367e473ab0016a1654d.mockapi.io/users/${author.id}/articles?limit=1&sortBy=publishedAt&order=desc`
-          );
-          //parse JSON
-          const articles = await articlesResponse.json();
-          //count the number of articles
-          author.articleCount = articles.length;
-           // If articles exist, assign the first article likely the latest to the author's 'lastArticle' property
-          author.lastArticle = articles[0] || null;
-          
-           // Fetching additional data (birthdate and bio)
-           const userDetailsResponse = await fetch(`https://5fb46367e473ab0016a1654d.mockapi.io/users/${author.id}`);
-           const userDetails = await userDetailsResponse.json();
-           author.birthdate = userDetails.birthdate || "N/A"; // Assuming birthdate is provided
-           author.bio = userDetails.bio || "No biography available"; // Assuming bio is provided
- 
-          //catching error time
-        } catch (error) {
-          console.error(
-            `Error fetching articles for author ${author.id}:`,
-            error
-          );
-        // Set the author's lastArticle to null if fetching articles fails and articleCount to 0 
-          author.articleCount = 0;
-          author.lastArticle = null;
-        }
-        //Return the updated author object with potentially populated lastArticle property
-        return author;
+      //Fetch API to get the list of articles
+      const articlesResponse = await fetch(`https://5fb46367e473ab0016a1654d.mockapi.io/articles`);
+      const allArticles = await articlesResponse.json();
+
+      // Map over authors to combine author information with their articles
+      this.authors = data.map(author => {
+         // Filter articles belonging to the current author
+        const authorArticles = allArticles.filter(article => article.userId === author.id);
+        return {
+           // Filter articles belonging to the current author
+          ...author,
+          lastArticle: authorArticles[0] || null,
+          birthdate: author.birthdate || "No disponible",
+          bio: author.bio || "No disponible"
+        };
       });
 
-      //Wait for all article fetching promises to resolve
-      this.authors = await Promise.all(authorPromises);
-      //Update the loading state to indicate data is fetched
+       // Filter articles belonging to the current author
+      localStorage.setItem(cacheKey, JSON.stringify(this.authors));
+
+      
       this.loading = false;
-      //Re-render the UI to reflect the fetched data authors and potentially their latest articles
       this.renderUI();
     } catch (error) {
       console.error("Error fetching data:", error);
+      this.loading = false;
+      this.renderUI();
     }
   }
+
+
+  formatDate(dateString) {
+    if (!dateString) return "fecha no disponible";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "fecha no valida";
+    const day = date.getDate();
+    const monthNames = [
+      'ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.',
+      'ago.', 'sep.', 'oct.', 'nov.', 'dic.'
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} de ${month} de ${year} `;
+  }
+
+
 }
 
 //author-component is why use in the html
