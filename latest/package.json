@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "description": "Frontend Junior developer tests",
   "scripts": {
-    "serve": "set NODE_ENV=development && node server.js",
-    "build": "set NODE_ENV=production rollup -c",
-    "dev": "NODE_ENV=development rollup -c -w && npm run serve"
+    "serve": "NODE_ENV=development && node server.js",
+    "build": "NODE_ENV=production rollup -c",
+    "dev": "NODE_ENV=developmentnode server.js & rollup -c -w"
   },
   "author": "videsk",
   "license": "ISC",

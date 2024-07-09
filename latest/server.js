@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 
 // Set the root directory for static files
 
-app.use(express.static(join(__dirname, 'src'))); // Correct path resolution
+app.use(express.static(join(__dirname, 'public'))); // Correct path resolution
 app.set('trust proxy', true);
 app.use('/', (req, res) => {
   res.sendFile(join(__dirname, 'src'));
